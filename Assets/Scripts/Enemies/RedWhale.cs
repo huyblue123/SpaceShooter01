@@ -17,12 +17,12 @@ public class RedWhale : MonoBehaviour
 
     [SerializeField] GameObject heatlhItem;
 
-    //[SerializeField] private AudioManager audioManager;
+    private Animator animator;
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         player = GameObject.FindGameObjectWithTag("Player").transform;
-
+        animator = GetComponent<Animator>();
         currentHp = maxHp;
     }
 
@@ -43,7 +43,7 @@ public class RedWhale : MonoBehaviour
     {
         currentHp -= dmg;
         currentHp = Mathf.Max(currentHp, 0);
-       // audioManager.PlayEnemyHit();
+        animator.SetTrigger("dmg");
         if (currentHp <= 0)
         {
             Die();

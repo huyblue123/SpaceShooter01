@@ -11,10 +11,13 @@ public class Stone : MonoBehaviour
     [SerializeField] float currentHp;
     [SerializeField] float dmgEnter = 5f;
 
+    private Animator animator;
+
     //[SerializeField] private AudioManager audioManager;
     private void Start()
     {
         currentHp = maxHp;
+        animator = GetComponent<Animator>();
     }
     void Update()
     {
@@ -27,7 +30,7 @@ public class Stone : MonoBehaviour
     {
         currentHp -= dmg;
         currentHp = Mathf.Max(currentHp, 0);
-        //audioManager.PlayEnemyHit();
+        animator.SetTrigger("dmg");
         if (currentHp <= 0)
         {
             Die();

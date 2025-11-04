@@ -10,6 +10,7 @@ public class PlayerController : MonoBehaviour
     private Vector2 moveInput;
     private float xMin, xMax, yMin, yMax;
     private Animator anim;
+    public Joystick joyStick; 
 
     [Header("Shooting")]
     public GameObject bulletPrefab;
@@ -64,29 +65,34 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        // Lấy input di chuyển
-        moveInput.x = Input.GetAxisRaw("Horizontal");
-        moveInput.y = Input.GetAxisRaw("Vertical");
-        moveInput.Normalize();
+        // Lấy input từ bàn phím
+        float inputX = Input.GetAxisRaw("Horizontal");
+        float inputY = Input.GetAxisRaw("Vertical");
 
-        // Animation hướng lên / xuống
-        anim.SetBool("isUp", Input.GetKey(KeyCode.W));
-        anim.SetBool("isDown", Input.GetKey(KeyCode.S));
-        anim.SetBool("isDash", Input.GetKey(KeyCode.LeftShift));
+        // Lấy input từ joystick
+        float joyX = joyStick.Horizontal;
+        float joyY = joyStick.Vertical;
 
-        // Bắn thường
+        // Kết hợp cả hai (ưu tiên cái nào lớn hơn)
+        float finalX = Mathf.Abs(inputX) > Mathf.Abs(joyX) ? inputX : joyX;
+        float finalY = Mathf.Abs(inputY) > Mathf.Abs(joyY) ? inputY : joyY;
+
+        moveInput = new Vector2(finalX, finalY).normalized;
+
+        // --- Animation ---
+        anim.SetBool("isUp", moveInput.y > 0.2f);
+        anim.SetBool("isDown", moveInput.y < -0.2f);
+        anim.SetBool("isDash", isDashing);
+
         if (Input.GetKeyDown(KeyCode.Space))
             Shoot();
 
-        // Bắn chùm
         if (Input.GetKeyDown(KeyCode.F))
             ShootParallel();
 
-        // Dash
-        if (Input.GetKeyDown(KeyCode.LeftShift))
+        if (Input.GetKeyDown(KeyCode.LeftShift) && !isDashing)
             StartCoroutine(Dash());
 
-        // Hồi năng lượng dần theo thời gian
         if (currentEne < maxEne)
         {
             currentEne += eneRegenate * Time.deltaTime;
@@ -110,7 +116,7 @@ public class PlayerController : MonoBehaviour
     }
 
     // --- BẮN ĐẠN THƯỜNG ---
-    private void Shoot()
+    public void Shoot()
     {
         GameObject bullet = Instantiate(bulletPrefab, firePoint.position, Quaternion.identity);
         Bullet bulletScript = bullet.GetComponent<Bullet>();
@@ -120,7 +126,7 @@ public class PlayerController : MonoBehaviour
     }
 
     // --- BẮN CHÙM ---
-    private void ShootParallel()
+    public void ShootParallel()
     {
         if (currentEne < eneCost)
             return;
@@ -147,7 +153,7 @@ public class PlayerController : MonoBehaviour
     }
 
     // --- DASH ---
-    private IEnumerator Dash()
+    public IEnumerator Dash()
     {
         if (currentEne < eneCost)
             yield break; // không đủ năng lượng thì bỏ qua
@@ -162,12 +168,15 @@ public class PlayerController : MonoBehaviour
         while (Time.time < startTime + dashTime)
         {
             rb.linearVelocity = moveInput * dashSpeed;
-            audioManager.PlayDash();
             yield return null;
         }
 
         rb.linearVelocity = Vector2.zero;
         isDashing = false;
+    }
+    public void DashTrigger()
+    {
+        StartCoroutine(Dash());
     }
 
     // --- HP ---
@@ -175,8 +184,8 @@ public class PlayerController : MonoBehaviour
     {
         currentHp -= dmg;
         currentHp = Mathf.Max(currentHp, 0);
+        anim.SetTrigger("TakeDmg");
         updateHPBar();
-        //audioManager.PlayEnemyHit();
         if (currentHp <= 0)
             Die();
     }
@@ -191,7 +200,6 @@ public class PlayerController : MonoBehaviour
     public void Die()
     {
         gameOverObj.SetActive(true);
-        //audioManager.PlayGameOver();
         Destroy(gameObject);
     }
 

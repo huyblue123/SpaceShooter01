@@ -22,12 +22,15 @@ public class Boss : MonoBehaviour
     [SerializeField] private float maxHp = 100f;
 
     [SerializeField] public GameObject winScreen;
+
+    private Animator animator;
     private void Start()
     {
         winScreen.SetActive(false);
         player = GameObject.FindGameObjectWithTag("Player").transform;
         startY = transform.position.y;
         currentHp = maxHp;
+        animator = GetComponent<Animator>();
     }
     private void Update()
     {
@@ -103,6 +106,7 @@ public class Boss : MonoBehaviour
     {
         currentHp -= dmg;
         currentHp = Mathf.Max(currentHp, 0);
+        animator.SetTrigger("dmg");
         if (currentHp <= 0)
         {
             Die();

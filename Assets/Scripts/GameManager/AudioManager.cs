@@ -36,8 +36,4 @@ public class AudioManager : MonoBehaviour
     {
         audioSource.PlayOneShot(enemyHitClip);
     }
-    public void PlayDash()
-    {
-        audioSource.PlayOneShot(dashClip);
-    }
 }

@@ -13,10 +13,12 @@ public class BlueWhale : MonoBehaviour
 
     [SerializeField] private GameObject energy;
     //[SerializeField] private AudioManager audioManager;
+    private Animator animator;
     private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         currentHp = maxHp;
+        animator = GetComponent<Animator>();
     }
     void Update()
     {
@@ -29,7 +31,7 @@ public class BlueWhale : MonoBehaviour
     {
         currentHp -= dmg;
         currentHp = Mathf.Max(currentHp, 0);
-        //audioManager.PlayEnemyHit();
+        animator.SetTrigger("bluewhale_dmg");
         if (currentHp <= 0)
         {
             Die();

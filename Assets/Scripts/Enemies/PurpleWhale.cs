@@ -21,6 +21,7 @@ public class PurpleWhale : MonoBehaviour
     private Rigidbody2D rb;
 
     Vector3 startPos;
+    private Animator animator;
 
     //[SerializeField] private AudioManager audioManager;
 
@@ -30,6 +31,7 @@ public class PurpleWhale : MonoBehaviour
         startPos = transform.position;
         rb = GetComponent<Rigidbody2D>();
         currentHp = maxHp;
+        animator = GetComponent<Animator>();
     }
 
     void Update()
@@ -60,7 +62,7 @@ public class PurpleWhale : MonoBehaviour
     {
         currentHp -= dmg;
         currentHp = Mathf.Max(currentHp, 0);
-       // audioManager.PlayEnemyHit();
+        animator.SetTrigger("dmg");
         if (currentHp <= 0)
         {
             Die();

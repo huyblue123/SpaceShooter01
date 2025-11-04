@@ -51,14 +51,14 @@ TagManager:
   - name: Enemy
     uniqueID: 1925966983
     locked: 0
-  - name: Player
-    uniqueID: 1623066633
-    locked: 0
   - name: Bullet
     uniqueID: 1192074943
     locked: 0
   - name: GameUI
     uniqueID: 695143819
+    locked: 0
+  - name: Player
+    uniqueID: 1623066633
     locked: 0
   m_RenderingLayers:
   - Default
