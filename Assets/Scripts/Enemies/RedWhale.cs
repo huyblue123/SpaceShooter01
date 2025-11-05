@@ -1,71 +1,63 @@
 ﻿using UnityEngine;
 
-public class RedWhale : MonoBehaviour
+public class RedWhale : Whales
 {
-    [SerializeField] float moveSpeed = 5f;       // tốc độ di chuyển
-    [SerializeField] float detectRange = 10f;    // khoảng cách phát hiện player
-    [SerializeField] float stopDistance = 0.5f;  // dừng lại nếu chạm player
+    [Header("Movement")]
+    [SerializeField] private float moveSpeed = 5f;
+    [SerializeField] private float detectRange = 10f;
+    [SerializeField] private float stopDistance = 0.5f;
+    [SerializeField] private Rigidbody2D rb;
 
-    [SerializeField] float damage = 1f;
-    [SerializeField] public Rigidbody2D rb;
+    [Header("Drop")]
+    [SerializeField] private GameObject healthItem;
 
-    Transform player;
-    Vector2 moveDirection;
+    private Transform player;
+    private Vector2 moveDirection;
 
-    [SerializeField] float maxHp = 5;
-    [SerializeField] float currentHp;
-
-    [SerializeField] GameObject heatlhItem;
-
-    private Animator animator;
-    void Start()
+    protected override void Start()
     {
+        base.Start(); // init HP và animator từ class cha
         rb = GetComponent<Rigidbody2D>();
-        player = GameObject.FindGameObjectWithTag("Player").transform;
-        animator = GetComponent<Animator>();
-        currentHp = maxHp;
+        player = GameObject.FindGameObjectWithTag("Player")?.transform;
     }
 
-    void FixedUpdate()
+    private void FixedUpdate()
     {
         if (player == null) return;
 
         float distance = Vector2.Distance(transform.position, player.position);
 
-        // Nếu trong tầm phát hiện → bắt đầu lao tới
+        // Nếu player trong tầm detect → di chuyển về phía player
         if (distance <= detectRange && distance > stopDistance)
         {
             moveDirection = (player.position - transform.position).normalized;
             rb.MovePosition(rb.position + moveDirection * moveSpeed * Time.fixedDeltaTime);
         }
     }
-    public void TakeDamage(float dmg)
+
+    public override void TakeDamage(float dmg)
     {
-        currentHp -= dmg;
-        currentHp = Mathf.Max(currentHp, 0);
+        base.TakeDamage(dmg); 
         animator.SetTrigger("dmg");
-        if (currentHp <= 0)
+        if (currentHp <= 0 && healthItem != null)
         {
-            Die();
-            Instantiate(heatlhItem, transform.position, Quaternion.identity);
+            Instantiate(healthItem, transform.position, Quaternion.identity);
         }
     }
-    public void Die()
-    {
 
-        Destroy(gameObject);
+    public override void Die()
+    {
+        base.Die();
     }
-    private void OnTriggerEnter2D(Collider2D collision)
+
+    protected override void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Player"))
         {
-            if (collision.CompareTag("Player"))
+            PlayerController player = collision.GetComponent<PlayerController>();
+            if (player != null)
             {
-                PlayerController player = collision.GetComponent<PlayerController>();
-                if (player != null)
-                {
-                    player.TakeDamage(damage);
-                }
+                player.TakeDamage(dmgEnter); 
             }
         }
     }

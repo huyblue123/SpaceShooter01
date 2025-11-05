@@ -7,6 +7,7 @@ public class MainMenu : MonoBehaviour
     public void LoadGame()
     {
         SceneManager.LoadScene("Game");
+        Time.timeScale = 1;
         //audioManager.PlayDefaultAudio();
     }
     public void ExitGame()

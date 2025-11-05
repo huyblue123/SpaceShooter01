@@ -174,14 +174,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 31b406d0debd6fc4ba528ecdc5b57293, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  maxHp: 5
+  dmgEnter: 10
+  animator: {fileID: 0}
   moveSpeed: 3
   detectRange: 20
   stopDistance: 0.5
-  damage: 2
   rb: {fileID: 70557571273013524}
-  maxHp: 5
-  currentHp: 0
-  heatlhItem: {fileID: 8860212592307674615, guid: 9d354ea1efb47fc4aae6b4c7dd04fa25, type: 3}
+  healthItem: {fileID: 8860212592307674615, guid: 9d354ea1efb47fc4aae6b4c7dd04fa25, type: 3}
 --- !u!50 &70557571273013524
 Rigidbody2D:
   serializedVersion: 5

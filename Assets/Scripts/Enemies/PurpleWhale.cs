@@ -1,52 +1,39 @@
 ﻿using UnityEngine;
 
-public class PurpleWhale : MonoBehaviour
+public class PurpleWhale : Whales
 {
-    [SerializeField] float horizontalSpeed = 4f;
-    [SerializeField] float amplitude = 1f;    // biên độ dao động theo Y
-    [SerializeField] float frequency = 2f;    // tốc độ dao động (số sóng)
-
-    [SerializeField] float maxHp = 5;
-    [SerializeField] float currentHp;
-    [SerializeField] float dmgEnter = 5f;
-
-    [SerializeField] GameObject bulletPrefab;
-    [SerializeField] float shootInterval = 2f; // khoảng cách giữa các lần bắn
-    [SerializeField] Transform firePoint; // vị trí bắn (gắn empty object trước miệng súng)
-    [SerializeField] float detectRange = 10f; // tầm nhìn enemy
-
-    Transform player;
-    float shootTimer;
-
+    [Header("Movement")]
+    [SerializeField] private float horizontalSpeed = 4f;
+    [SerializeField] private float amplitude = 1f;
+    [SerializeField] private float frequency = 2f;
+    private Vector3 startPos;
     private Rigidbody2D rb;
 
-    Vector3 startPos;
-    private Animator animator;
+    [Header("Attack")]
+    [SerializeField] private GameObject bulletPrefab;
+    [SerializeField] private Transform firePoint;
+    [SerializeField] private float shootInterval = 2f;
+    [SerializeField] private float detectRange = 10f;
+    private float shootTimer;
+    private Transform player;
 
-    //[SerializeField] private AudioManager audioManager;
-
-    void Start()
+    protected override void Start()
     {
-        player = GameObject.FindGameObjectWithTag("Player").transform;
-        startPos = transform.position;
+        base.Start(); // init HP và animator
         rb = GetComponent<Rigidbody2D>();
-        currentHp = maxHp;
-        animator = GetComponent<Animator>();
+        startPos = transform.position;
+        player = GameObject.FindGameObjectWithTag("Player")?.transform;
     }
 
-    void Update()
+    private void Update()
     {
-        // di chuyển ngang
-        float x = transform.position.x + Vector3.left.x * horizontalSpeed * Time.deltaTime;
-
-        // dao động Y theo sin
+        // Di chuyển ngang sang trái
         float y = startPos.y + Mathf.Sin(Time.time * frequency) * amplitude;
-
         transform.position = new Vector3(transform.position.x - horizontalSpeed * Time.deltaTime, y, transform.position.z);
 
         if (player == null) return;
 
-        // Kiểm tra nếu player nằm trong tầm bắn
+        // Kiểm tra tầm bắn
         float distance = Vector2.Distance(transform.position, player.position);
         if (distance <= detectRange)
         {
@@ -58,21 +45,19 @@ public class PurpleWhale : MonoBehaviour
             }
         }
     }
-    public void TakeDamage(float dmg)
+
+    public override void TakeDamage(float dmg)
     {
-        currentHp -= dmg;
-        currentHp = Mathf.Max(currentHp, 0);
+        base.TakeDamage(dmg);
         animator.SetTrigger("dmg");
-        if (currentHp <= 0)
-        {
-            Die();
-        }
     }
-    public void Die()
+
+    public override void Die()
     {
-        Destroy(gameObject);
+        base.Die();
     }
-    private void OnTriggerEnter2D(Collider2D collision)
+
+    protected override void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Player"))
         {
@@ -83,12 +68,13 @@ public class PurpleWhale : MonoBehaviour
             }
         }
     }
+
     private void Shoot()
     {
+        if (bulletPrefab == null || firePoint == null || player == null) return;
+
         GameObject bullet = Instantiate(bulletPrefab, firePoint.position, Quaternion.identity);
-
         Vector2 direction = (player.position - firePoint.position).normalized;
-
         bullet.GetComponent<EnemyBullet>().SetDirection(direction);
     }
 }

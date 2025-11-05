@@ -1,56 +1,45 @@
-using UnityEngine;
+﻿using UnityEngine;
 
-public class BlueWhale : MonoBehaviour
+public class BlueWhale : Whales
 {
-    [SerializeField] Rigidbody2D rb;
-    [SerializeField] float speed = 5f;
-    [SerializeField] bool destroyWhenOffscreen = true;
-    [SerializeField] float offscreenX = -20f;
+    [Header("Movement")]
+    [SerializeField] private Rigidbody2D rb;
+    [SerializeField] private float speed = 5f;
+    [SerializeField] private bool destroyWhenOffscreen = true;
+    [SerializeField] private float offscreenX = -20f;
 
-    [SerializeField] float maxHp = 5;
-    [SerializeField] float currentHp;
-    [SerializeField] float dmgEnter = 5f;
-
+    [Header("Drop")]
     [SerializeField] private GameObject energy;
-    //[SerializeField] private AudioManager audioManager;
-    private Animator animator;
-    private void Start()
+
+    protected override void Start()
     {
+        base.Start();
         rb = GetComponent<Rigidbody2D>();
-        currentHp = maxHp;
-        animator = GetComponent<Animator>();
     }
-    void Update()
+
+    private void Update()
     {
+        // Di chuyển sang trái
         transform.Translate(Vector3.left * speed * Time.deltaTime);
 
+        // Hủy khi ra khỏi màn hình
         if (destroyWhenOffscreen && transform.position.x < offscreenX)
             Destroy(gameObject);
     }
-    public void TakeDamage(float dmg)
+
+    public override void TakeDamage(float dmg)
     {
-        currentHp -= dmg;
-        currentHp = Mathf.Max(currentHp, 0);
+        base.TakeDamage(dmg); 
         animator.SetTrigger("bluewhale_dmg");
-        if (currentHp <= 0)
+
+        if (currentHp <= 0 && energy != null)
         {
-            Die();
             Instantiate(energy, transform.position, Quaternion.identity);
         }
     }
-    public void Die()
+
+    public override void Die()
     {
-        Destroy(gameObject);
+        base.Die();
     }
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (collision.CompareTag("Player"))
-        {
-            PlayerController player = collision.GetComponent<PlayerController>();
-            if (player != null)
-            {
-                player.TakeDamage(dmgEnter);
-            }
-        }
-    } 
 }
